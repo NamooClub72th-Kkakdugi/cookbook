@@ -11,8 +11,10 @@ import javax.sql.DataSource;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
+import org.springframework.util.StringUtils;
 
 import com.namoo.cookbook.dao.RecipeDao;
+import com.namoo.cookbook.domain.ImageFile;
 import com.namoo.cookbook.domain.Recipe;
 import com.namoo.cookbook.shared.exception.CookbookRuntimeException;
 
@@ -34,7 +36,7 @@ public class RecipeDaoJdbc implements RecipeDao{
 //			String sql = "SELECT recipe_nm, ingredients, procedures FROM recipe_tb";
 			// 위 또는 아래 둘 중 한 방식으로 쓰면 된다.
 			StringBuffer sb = new StringBuffer();
-			sb.append("SELECT recipe_nm, ingredients, procedures ");
+			sb.append("SELECT recipe_nm, ingredients, procedures, img_type, img_file ");
 			sb.append("FROM recipe_tb");
 			
 			pstmt = conn.prepareStatement(sb.toString()	);
@@ -64,7 +66,7 @@ public class RecipeDaoJdbc implements RecipeDao{
 			conn = dataSource.getConnection();
 
 			StringBuffer sb = new StringBuffer();
-			sb.append("SELECT recipe_nm, ingredients, procedures ");
+			sb.append("SELECT recipe_nm, ingredients, procedures, img_type, img_file ");
 			sb.append("FROM recipe_tb ");
 			sb.append("WHERE recipe_nm = ?");
 			
@@ -94,13 +96,23 @@ public class RecipeDaoJdbc implements RecipeDao{
 			conn = dataSource.getConnection();
 
 			StringBuffer sb = new StringBuffer();
-			sb.append("INSERT INTO recipe_tb(recipe_nm, ingredients, procedures) ");
-			sb.append("VALUES (?, ?, ?) ");
+			sb.append("INSERT INTO recipe_tb(recipe_nm, ingredients, procedures, img_type, img_file) ");
+			sb.append("VALUES (?, ?, ?, ?, ?) ");
 			
 			pstmt = conn.prepareStatement(sb.toString()	);
 			pstmt.setString(1, recipe.getName());
 			pstmt.setString(2, recipe.getIngredients());
 			pstmt.setString(3, recipe.getProcedure());
+			
+			ImageFile recipeImage = recipe.getRecipeImage();
+			if (recipe.getRecipeImage() != null) {
+				pstmt.setString(4, recipeImage.getContentType());
+				pstmt.setString(5, recipeImage.getFileName());
+			} else {
+				pstmt.setString(4, "");
+				pstmt.setString(5, "");
+			}
+			
 			
 			pstmt.executeUpdate();
 			
@@ -121,13 +133,24 @@ public class RecipeDaoJdbc implements RecipeDao{
 			conn = dataSource.getConnection();
 
 			StringBuffer sb = new StringBuffer();
-			sb.append("UPDATE recipe_tb SET ingredients = ?, procedures =  ? ");
+			sb.append("UPDATE recipe_tb SET ingredients = ?, procedures =  ?, image_type = ?, image_file = ? ");
 			sb.append("WHERE recipe_nm = ?");
 			
 			pstmt = conn.prepareStatement(sb.toString()	);
 			pstmt.setString(1, recipe.getIngredients());
 			pstmt.setString(2, recipe.getProcedure());
-			pstmt.setString(3, recipe.getName());
+			
+			ImageFile recipeImage = recipe.getRecipeImage();
+			if (recipe.getRecipeImage() != null) {
+				pstmt.setString(3, recipeImage.getContentType());
+				pstmt.setString(4, recipeImage.getFileName());
+			} else {
+				pstmt.setString(3, "");
+				pstmt.setString(4, "");
+			}
+			pstmt.setString(5, recipe.getName());
+			
+			
 			
 			pstmt.executeUpdate();
 			
@@ -179,7 +202,15 @@ public class RecipeDaoJdbc implements RecipeDao{
 		String ingredients = rs.getString("ingredients");
 		String procedure = rs.getString("procedures");
 		
-		return new Recipe(recipeName, ingredients, procedure);
+		Recipe recipe = new Recipe(recipeName, ingredients, procedure);
+		
+		String imageType = rs.getString("img_type");
+		String imageFile = rs.getString("img_file");
+		if ( !StringUtils.isEmpty(imageType) && !StringUtils.isEmpty(imageFile)) {
+			ImageFile recipeImage = new ImageFile(imageType, imageFile);
+			recipe.setRecipeImage(recipeImage);
+		}
+		return recipe;
 	}
 
 	/**

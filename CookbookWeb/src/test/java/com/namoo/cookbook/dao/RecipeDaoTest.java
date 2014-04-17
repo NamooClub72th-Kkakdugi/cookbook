@@ -9,9 +9,11 @@ import java.util.List;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.AssertThrows;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import com.namoo.cookbook.domain.ImageFile;
 import com.namoo.cookbook.domain.Recipe;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -58,8 +60,10 @@ public class RecipeDaoTest {
 		String recipeName = "마르게리따 피자";
 		String ingredients = "치즈, 밀가루, 토마토, 마늘";
 		String procedure = "1. 오븐에 굽는다.";
+		ImageFile recipeImage = new ImageFile("image/jpg", "20140417171110123.jsp");
 		
 		Recipe recipe = new Recipe(recipeName, ingredients, procedure);
+		recipe.setRecipeImage(recipeImage);
 		recipeDao.insertRecipe(recipe);;
 		
 		//assertion
@@ -68,6 +72,10 @@ public class RecipeDaoTest {
 		assertThat(recipe.getName(), is(recipeName));
 		assertThat(recipe.getIngredients(), is(ingredients));
 		assertThat(recipe.getProcedure(), is(procedure));
+		
+		recipeImage = recipe.getRecipeImage();
+		assertThat(recipeImage.getContentType(), is("image/jpg"));
+		assertThat(recipeImage.getFileName(), is("20140417171110123.jsp"));
 	}
 
 	@Test

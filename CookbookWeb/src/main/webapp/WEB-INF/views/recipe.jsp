@@ -12,6 +12,8 @@
 
 <h1>${recipe.name}</h1>
 
+<img src="${ctx}/recipe/${recipe.name}/image" />
+
 <h2>재료</h2>
 <ul>
 	<c:forEach var="recipeName" items="${recipe.ingredients}">
