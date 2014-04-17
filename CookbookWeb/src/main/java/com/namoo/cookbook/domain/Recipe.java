@@ -6,6 +6,8 @@ public class Recipe {
 	private String ingredients;
 	private String procedure;
 	
+	private ImageFile recipeImage;
+	
 	//--------------------------------------------------------------------------
 	// constructor
 	
@@ -46,5 +48,15 @@ public class Recipe {
 	public void setProcedure(String procedure) {
 		this.procedure = procedure;
 	}
+
+	public ImageFile getRecipeImage() {
+		return recipeImage;
+	}
+
+	public void setRecipeImage(ImageFile recipeImage) {
+		this.recipeImage = recipeImage;
+	}
+	
+	
 
 }
