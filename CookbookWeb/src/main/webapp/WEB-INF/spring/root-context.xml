@@ -8,18 +8,22 @@
 		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.0.xsd">
 	
 	<!-- Root Context: defines shared resources visible to all other web components -->
-		
-		
+	
+	<!-- Database properties -->
+	<context:property-placeholder location="classpath:jdbc.properties"/>
+	
 	<!-- Service Component Scan -->
 	<context:component-scan base-package="com.namoo.cookbook.service" />
 	
 	<!--  Dao Component Scan -->
 	<context:component-scan base-package="com.namoo.cookbook.dao" />
-	
-	<!-- Embedded Database. 향후 mariadb로 바꿈-->
-	<jdbc:embedded-database id="dataSource" type="H2">
-		<jdbc:script location="classpath:schema.ddl"/>
-		<jdbc:script location="classpath:init-data.sql"/>
-	</jdbc:embedded-database>
-	
+
+	<!--  DataSource -->
+	<bean id="dataSource" class="org.apache.commons.dbcp2.BasicDataSource">
+		<property name="driverClassName" value="${database.driver}" />
+		<property name="username" value="${database.username}" />
+		<property name="password" value="${database.password}" />
+		<property name="url" value="${database.url}" />
+		<property name="maxTotal" value="${database.maxConnection}" />
+	</bean>
 </beans>

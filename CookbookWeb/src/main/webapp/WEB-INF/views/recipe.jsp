@@ -25,6 +25,7 @@
 <ul>
 	<li>${recipe.procedure}</li>
 </ul>
+<a href="${ctx}/recipe/${recipe.name}/delete" >삭제</a>
 
 </body>
 </html>

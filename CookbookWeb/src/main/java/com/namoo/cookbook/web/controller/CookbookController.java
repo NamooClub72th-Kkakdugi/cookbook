@@ -13,6 +13,7 @@ import net.wimpi.telnetd.io.terminal.ansi;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
+import org.crsh.shell.impl.command.system.repl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
@@ -39,7 +40,7 @@ import com.namoo.cookbook.service.facade.CookbookService;
 @Controller
 public class CookbookController {
 	
-	@Value("c:\\daycourse\\cookbook\\")
+	@Value("#{cookbook['imageRootPath']}")
 	private String imageRoot;
 	
 	@Autowired
@@ -86,7 +87,11 @@ public class CookbookController {
 		if (imageFile != null) {
 			contentType = imageFile.getContentType();
 			in = new FileInputStream(new File(imageRoot+ imageFile.getFileName()));
-		} try {
+		} else {
+			contentType = "image/jpeg";
+			in = this.getClass().getResourceAsStream("/default.jpg");
+		} 
+		try {
 			resp.setContentType(contentType);
 			IOUtils.copy(in, resp.getOutputStream());
 		} finally {
@@ -94,23 +99,34 @@ public class CookbookController {
 		}
 	}
 	
+	@RequestMapping(value="/recipe/{recipeName}/delete", method = RequestMethod.GET)
+	public void deleteRecipe(@PathVariable("recipeName") String recipeName, HttpServletResponse resp) throws IOException {
+		//
+		cookbookService.removeRecipe(recipeName);
+		resp.sendRedirect("/cookbook/main");
+	}
+	
+	
+	
 	
 	//--------------------------------------------------------------------------
 	// private method
 	
 	private void setupImageToRecipe(Recipe recipe, MultipartFile file) throws IOException {
-	      //
-	      StringBuffer sb = new StringBuffer();
-	      sb.append(new SimpleDateFormat("yyyyMMddHHmmssSSS").format(new Date()));
-	      sb.append(".");
-	      sb.append(FilenameUtils.getExtension(file.getOriginalFilename()));
-	      String saveFileName = sb.toString();
-	      File saveFile = new File(imageRoot+ saveFileName);
-	      
-	      FileCopyUtils.copy(file.getBytes(), saveFile);
-	      System.out.println("image saved in " + saveFile.getCanonicalPath());
-	      
-	      String contentType = file.getContentType();
-	      recipe.setRecipeImage(new ImageFile(contentType, saveFileName));
+	    //
+		if (file.isEmpty()) return;
+		
+		StringBuffer sb = new StringBuffer();
+		sb.append(new SimpleDateFormat("yyyyMMddHHmmssSSS").format(new Date()));
+		sb.append(".");
+		sb.append(FilenameUtils.getExtension(file.getOriginalFilename()));
+		String saveFileName = sb.toString();
+		File saveFile = new File(imageRoot + saveFileName);
+
+		FileCopyUtils.copy(file.getBytes(), saveFile);
+		System.out.println("image saved in " + saveFile.getCanonicalPath());
+
+		String contentType = file.getContentType();
+		recipe.setRecipeImage(new ImageFile(contentType, saveFileName));
 	   }
 }
