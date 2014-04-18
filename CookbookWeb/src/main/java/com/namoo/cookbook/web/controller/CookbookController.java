@@ -76,7 +76,8 @@ public class CookbookController {
 	}
 	
 	@RequestMapping(value = "/recipe/{recipeName}/image", method = RequestMethod.GET)
-	public void getRecipeImage(@PathVariable("recipeName") String recipeName, HttpServletResponse resp) throws IOException {
+	public void getRecipeImage(
+			@PathVariable("recipeName") String recipeName, HttpServletResponse resp) throws IOException {
 		//
 		Recipe recipe = cookbookService.getRecipe(recipeName);
 		ImageFile imageFile = recipe.getRecipeImage();

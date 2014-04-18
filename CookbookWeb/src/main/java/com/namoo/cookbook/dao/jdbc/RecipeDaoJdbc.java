@@ -97,7 +97,7 @@ public class RecipeDaoJdbc implements RecipeDao{
 
 			StringBuffer sb = new StringBuffer();
 			sb.append("INSERT INTO recipe_tb(recipe_nm, ingredients, procedures, img_type, img_file) ");
-			sb.append("VALUES (?, ?, ?, ?, ?) ");
+			sb.append("VALUES(?, ?, ?, ?, ?)");
 			
 			pstmt = conn.prepareStatement(sb.toString()	);
 			pstmt.setString(1, recipe.getName());
@@ -112,7 +112,6 @@ public class RecipeDaoJdbc implements RecipeDao{
 				pstmt.setString(4, "");
 				pstmt.setString(5, "");
 			}
-			
 			
 			pstmt.executeUpdate();
 			
